@@ -1,0 +1,37 @@
+services:
+  mysqld:
+    image: mysql:9.0.0
+    container_name: mysqld
+    hostname: mysql
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - cloudtoc
+    ports:
+      - 3306:3306
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
+  laravel:
+    build:
+      context: ./laravel
+      dockerfile: Dockerfile
+    container_name: laravel
+    hostname: laravel
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./data/storage:/cloudtoc/storage
+      - ./data/envs:/cloudtoc/envs
+    networks:
+      - cloudtoc
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - mysqld
+networks:
+  cloudtoc:
+    driver: bridge
